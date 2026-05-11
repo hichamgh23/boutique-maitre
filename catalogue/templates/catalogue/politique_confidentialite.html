@@ -1,0 +1,89 @@
+{# catalogue/templates/catalogue/politique_confidentialite.html #}
+{% extends 'base.html' %}
+{% block title %}Politique de confidentialité — {{ config.nom_boutique|default:"Ma Boutique" }}{% endblock %}
+
+{% block content %}
+<div class="max-w-3xl mx-auto px-5 py-14">
+
+    <!-- En-tête -->
+    <div class="mb-10">
+        <p class="text-xs font-black uppercase tracking-[3px] mb-3"
+           style="color:{{ config.couleur_principale|default:'#7c3aed' }};">Légal</p>
+        <h1 class="text-4xl font-black text-gray-900 mb-3">Politique de confidentialité</h1>
+        <p class="text-sm text-gray-400">Dernière mise à jour : mai 2026</p>
+    </div>
+
+    <div class="prose prose-gray max-w-none space-y-8 text-gray-600 leading-relaxed">
+
+        <section>
+            <h2 class="text-lg font-black text-gray-900 mb-3">1. Qui sommes-nous ?</h2>
+            <p class="text-sm">
+                <strong class="text-gray-800">{{ config.nom_boutique|default:"Ma Boutique" }}</strong> est une boutique en ligne
+                opérant en Algérie. Nous nous engageons à protéger la vie privée de nos clients
+                et à traiter leurs données personnelles de manière responsable.
+            </p>
+        </section>
+
+        <section>
+            <h2 class="text-lg font-black text-gray-900 mb-3">2. Données collectées</h2>
+            <p class="text-sm mb-3">Lors d'une commande, nous collectons les informations suivantes :</p>
+            <ul class="text-sm space-y-2 pl-4">
+                <li class="flex gap-2"><span style="color:{{ config.couleur_principale|default:'#7c3aed' }};">•</span> Nom et prénom</li>
+                <li class="flex gap-2"><span style="color:{{ config.couleur_principale|default:'#7c3aed' }};">•</span> Numéro de téléphone</li>
+                <li class="flex gap-2"><span style="color:{{ config.couleur_principale|default:'#7c3aed' }};">•</span> Adresse email (optionnel)</li>
+                <li class="flex gap-2"><span style="color:{{ config.couleur_principale|default:'#7c3aed' }};">•</span> Adresse de livraison (wilaya, commune, adresse)</li>
+                <li class="flex gap-2"><span style="color:{{ config.couleur_principale|default:'#7c3aed' }};">•</span> Détails de la commande</li>
+            </ul>
+        </section>
+
+        <section>
+            <h2 class="text-lg font-black text-gray-900 mb-3">3. Utilisation des données</h2>
+            <p class="text-sm mb-3">Vos données sont utilisées exclusivement pour :</p>
+            <ul class="text-sm space-y-2 pl-4">
+                <li class="flex gap-2"><span style="color:{{ config.couleur_principale|default:'#7c3aed' }};">•</span> Traiter et expédier votre commande</li>
+                <li class="flex gap-2"><span style="color:{{ config.couleur_principale|default:'#7c3aed' }};">•</span> Vous contacter concernant votre commande</li>
+                <li class="flex gap-2"><span style="color:{{ config.couleur_principale|default:'#7c3aed' }};">•</span> Envoyer une confirmation par email (si renseigné)</li>
+            </ul>
+            <p class="text-sm mt-3">
+                Nous ne vendons, ne louons et ne partageons <strong class="text-gray-800">jamais</strong>
+                vos données personnelles avec des tiers à des fins commerciales.
+            </p>
+        </section>
+
+        <section>
+            <h2 class="text-lg font-black text-gray-900 mb-3">4. Conservation des données</h2>
+            <p class="text-sm">
+                Vos données sont conservées pendant la durée nécessaire au traitement de votre commande
+                et à la gestion des éventuels litiges, conformément à la législation algérienne en vigueur.
+            </p>
+        </section>
+
+        <section>
+            <h2 class="text-lg font-black text-gray-900 mb-3">5. Sécurité</h2>
+            <p class="text-sm">
+                Nous mettons en œuvre des mesures techniques appropriées pour protéger vos données
+                contre tout accès non autorisé, modification ou divulgation.
+            </p>
+        </section>
+
+        <section>
+            <h2 class="text-lg font-black text-gray-900 mb-3">6. Vos droits</h2>
+            <p class="text-sm">
+                Vous pouvez à tout moment demander l'accès, la rectification ou la suppression
+                de vos données personnelles en nous contactant via la page
+                <a href="{% url 'catalogue:contact' %}" class="font-semibold underline" style="color:{{ config.couleur_principale|default:'#7c3aed' }};">Contact</a>.
+            </p>
+        </section>
+
+        <section>
+            <h2 class="text-lg font-black text-gray-900 mb-3">7. Contact</h2>
+            <p class="text-sm">
+                Pour toute question relative à cette politique, contactez-nous via notre
+                <a href="{% url 'catalogue:contact' %}" class="font-semibold underline" style="color:{{ config.couleur_principale|default:'#7c3aed' }};">page de contact</a>.
+            </p>
+        </section>
+
+    </div>
+
+</div>
+{% endblock %}

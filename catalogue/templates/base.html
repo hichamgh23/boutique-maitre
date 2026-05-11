@@ -1,0 +1,272 @@
+{# catalogue/templates/base.html #}
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}{{ config.nom_boutique|default:"Ma Boutique" }}{% endblock %}</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        #search-overlay { animation: fadeIn .15s ease; }
+        @keyframes fadeIn { from { opacity:0 } to { opacity:1 } }
+        .search-item:hover { background: #f8f8f8; }
+    </style>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        brand: '{{ config.couleur_principale|default:"#111827" }}',
+                    }
+                }
+            }
+        }
+    </script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Urbanist:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <style>
+        * { font-family: 'Urbanist', system-ui, sans-serif; }
+        .nav-link::after {
+            content: ''; display: block; height: 2px; width: 0;
+            background: currentColor; transition: width .25s ease;
+        }
+        .nav-link:hover::after { width: 100%; }
+    </style>
+</head>
+<body class="bg-white text-gray-900 flex flex-col min-h-screen">
+
+    <!-- NAVBAR -->
+    <header class="bg-white border-b border-gray-100 sticky top-0 z-50">
+        <div class="max-w-screen-xl mx-auto px-6 h-[68px] flex items-center justify-between">
+
+            <a href="{% url 'catalogue:home' %}" class="text-[22px] font-black tracking-tight text-gray-900">
+                {{ config.nom_boutique|default:"Ma Boutique" }}
+            </a>
+
+            <nav class="hidden md:flex items-center gap-8">
+                <a href="{% url 'catalogue:home' %}"              class="nav-link text-sm font-semibold text-gray-500 hover:text-gray-900 transition-colors pb-0.5">Accueil</a>
+                <a href="{% url 'catalogue:boutique' %}"          class="nav-link text-sm font-semibold text-gray-500 hover:text-gray-900 transition-colors pb-0.5">Boutique</a>
+                <a href="{% url 'catalogue:comment_ca_marche' %}" class="nav-link text-sm font-semibold text-gray-500 hover:text-gray-900 transition-colors pb-0.5">Comment ça marche</a>
+                <a href="{% url 'catalogue:contact' %}"           class="nav-link text-sm font-semibold text-gray-500 hover:text-gray-900 transition-colors pb-0.5">Contact</a>
+            </nav>
+
+            <div class="flex items-center gap-3">
+
+                <!-- Icône Recherche -->
+                <button onclick="openSearch()"
+                        class="w-9 h-9 flex items-center justify-center text-gray-500 hover:text-gray-900 hover:bg-gray-100 rounded-xl transition-all">
+                    <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z"/>
+                    </svg>
+                </button>
+
+                <!-- Icône Panier -->
+                <a href="{% url 'commandes:cart' %}" class="relative w-9 h-9 flex items-center justify-center text-gray-500 hover:text-gray-900 hover:bg-gray-100 rounded-xl transition-all">
+                    <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 10.5V6a3.75 3.75 0 10-7.5 0v4.5m11.356-1.993l1.263 12c.07.665-.45 1.243-1.119 1.243H4.25a1.125 1.125 0 01-1.12-1.243l1.264-12A1.125 1.125 0 015.513 7.5h12.974c.576 0 1.059.435 1.119 1.007z"/>
+                    </svg>
+                    {% with nb=request.session.cart|length %}{% if nb %}
+                    <span class="absolute -top-1 -right-1 bg-red-500 text-white text-[9px] font-black w-4 h-4 rounded-full flex items-center justify-center">{{ nb }}</span>
+                    {% endif %}{% endwith %}
+                </a>
+
+                <!-- Bouton Commander -->
+                <a href="{% url 'commandes:checkout' %}"
+                   class="hidden md:inline-flex items-center gap-1.5 text-white text-sm font-bold px-5 py-2.5 rounded-full hover:opacity-85 transition-opacity"
+                   style="background-color:{{ config.couleur_principale|default:'#111827' }};">
+                    Commander
+                    <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3"/>
+                    </svg>
+                </a>
+            </div>
+
+        </div>
+    </header>
+
+    <!-- ══ OVERLAY RECHERCHE ══ -->
+    <div id="search-overlay"
+         class="fixed inset-0 z-[999] hidden"
+         onclick="if(event.target===this) closeSearch()">
+        <!-- Fond flouté -->
+        <div class="absolute inset-0 bg-black/60 backdrop-blur-sm"></div>
+
+        <!-- Panel -->
+        <div class="relative max-w-2xl mx-auto mt-24 px-4">
+            <!-- Input -->
+            <div class="bg-white rounded-2xl shadow-2xl overflow-hidden">
+                <div class="flex items-center gap-3 px-5 py-4 border-b border-gray-100">
+                    <svg class="w-5 h-5 text-gray-400 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z"/>
+                    </svg>
+                    <input id="search-input"
+                           type="text"
+                           placeholder="Rechercher un produit..."
+                           autocomplete="off"
+                           class="flex-grow text-gray-900 text-base font-medium placeholder-gray-400 focus:outline-none">
+                    <button onclick="closeSearch()" class="text-gray-400 hover:text-gray-700 transition-colors text-sm font-semibold">
+                        ESC
+                    </button>
+                </div>
+
+                <!-- Résultats -->
+                <div id="search-results" class="max-h-[60vh] overflow-y-auto"></div>
+            </div>
+        </div>
+    </div>
+
+    <main class="flex-grow">{% block content %}{% endblock %}</main>
+
+    <!-- FOOTER -->
+    <footer class="bg-gray-950 text-gray-400" id="contact">
+
+        <!-- Bloc principal -->
+        <div class="max-w-screen-xl mx-auto px-5 pt-10 pb-6">
+
+            <!-- Marque -->
+            <div class="mb-8 pb-8 border-b border-gray-800">
+                <div class="text-white font-black text-2xl mb-2">{{ config.nom_boutique|default:"Ma Boutique" }}</div>
+                <p class="text-sm text-gray-500 leading-relaxed">
+                    Boutique en ligne · Livraison dans les 58 wilayas d'Algérie.
+                </p>
+            </div>
+
+            <!-- Grille 2x2 sur mobile, 4 colonnes sur desktop -->
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-8 pb-8 border-b border-gray-800">
+
+                <!-- Navigation -->
+                <div>
+                    <p class="text-white text-xs font-black uppercase tracking-widest mb-4">Navigation</p>
+                    <ul class="space-y-3">
+                        <li><a href="{% url 'catalogue:home' %}"              class="text-sm text-gray-500 hover:text-white transition-colors block py-0.5">Accueil</a></li>
+                        <li><a href="{% url 'catalogue:boutique' %}"          class="text-sm text-gray-500 hover:text-white transition-colors block py-0.5">Boutique</a></li>
+                        <li><a href="{% url 'catalogue:comment_ca_marche' %}" class="text-sm text-gray-500 hover:text-white transition-colors block py-0.5">Comment ça marche</a></li>
+                        <li><a href="{% url 'catalogue:contact' %}"           class="text-sm text-gray-500 hover:text-white transition-colors block py-0.5">Contact</a></li>
+                    </ul>
+                </div>
+
+                <!-- Commandes -->
+                <div>
+                    <p class="text-white text-xs font-black uppercase tracking-widest mb-4">Ma commande</p>
+                    <ul class="space-y-3">
+                        <li><a href="{% url 'commandes:cart' %}"         class="text-sm text-gray-500 hover:text-white transition-colors block py-0.5">Mon panier</a></li>
+                        <li><a href="{% url 'commandes:checkout' %}"     class="text-sm text-gray-500 hover:text-white transition-colors block py-0.5">Commander</a></li>
+                        <li><a href="{% url 'commandes:suivi' %}"        class="text-sm text-gray-500 hover:text-white transition-colors block py-0.5">Suivre ma commande</a></li>
+                        <li><a href="{% url 'commandes:upload_preuve' %}" class="text-sm text-gray-500 hover:text-white transition-colors block py-0.5">Envoyer paiement</a></li>
+                    </ul>
+                </div>
+
+                <!-- Livraison -->
+                <div>
+                    <p class="text-white text-xs font-black uppercase tracking-widest mb-4">Livraison</p>
+                    <ul class="space-y-3">
+                        <li class="text-sm text-gray-500">🚚 Livraison à domicile</li>
+                        <li class="text-sm text-gray-500">🏪 Stop Desk Yalidine</li>
+                        <li class="text-sm text-gray-500">📍 58 Wilayas couvertes</li>
+                        <li class="text-sm text-gray-500">⏱ Délai 24h — 72h</li>
+                    </ul>
+                </div>
+
+                <!-- Paiement -->
+                <div>
+                    <p class="text-white text-xs font-black uppercase tracking-widest mb-4">Paiement</p>
+                    <ul class="space-y-3">
+                        <li class="text-sm text-gray-500">💵 Paiement à la livraison</li>
+                        <li class="text-sm text-gray-500">🏦 Virement CCP</li>
+                        <li class="text-sm text-gray-500">📱 BaridiMob</li>
+                    </ul>
+                </div>
+
+            </div>
+
+            <!-- Copyright -->
+            <div class="pt-6 space-y-3 text-center sm:text-left">
+                <!-- Liens légaux -->
+                <div class="flex flex-wrap justify-center sm:justify-between items-center gap-x-4 gap-y-2">
+                    <div class="flex flex-wrap justify-center gap-x-4 gap-y-2">
+                        <a href="{% url 'catalogue:politique_confidentialite' %}"
+                           class="text-xs text-gray-600 hover:text-gray-400 transition-colors underline-offset-2 hover:underline">
+                            Politique de confidentialité
+                        </a>
+                        <span class="text-gray-700">·</span>
+                        <a href="{% url 'catalogue:cookies' %}"
+                           class="text-xs text-gray-600 hover:text-gray-400 transition-colors underline-offset-2 hover:underline">
+                            Cookies
+                        </a>
+                    </div>
+                    <span class="text-xs text-gray-700">Développé par Hicham Ghassoul</span>
+                </div>
+                <!-- Copyright -->
+                <p class="text-xs text-gray-700">
+                    © 2026 {{ config.nom_boutique|default:"Ma Boutique" }} · Tous droits réservés
+                </p>
+            </div>
+
+        </div>
+    </footer>
+
+<script>
+function toggleMenu() { document.getElementById('mobileMenu').classList.toggle('open'); }
+
+const BRAND_COLOR = "{{ config.couleur_principale|default:'#7c3aed' }}";
+const overlay     = document.getElementById('search-overlay');
+const input       = document.getElementById('search-input');
+const results     = document.getElementById('search-results');
+let   debounce    = null;
+
+function openSearch() {
+    overlay.classList.remove('hidden');
+    setTimeout(() => input.focus(), 50);
+}
+function closeSearch() {
+    overlay.classList.add('hidden');
+    input.value = '';
+    results.innerHTML = '';
+}
+document.addEventListener('keydown', e => { if (e.key === 'Escape') closeSearch(); });
+
+input.addEventListener('input', () => {
+    clearTimeout(debounce);
+    const q = input.value.trim();
+    if (q.length < 2) { results.innerHTML = ''; return; }
+    results.innerHTML = '<div class="p-6 text-center text-sm text-gray-400">Recherche en cours...</div>';
+    debounce = setTimeout(() => fetchResults(q), 280);
+});
+
+async function fetchResults(q) {
+    try {
+        const res  = await fetch('/api/search/?q=' + encodeURIComponent(q));
+        const data = await res.json();
+        renderResults(data.results, q);
+    } catch(e) { results.innerHTML = ''; }
+}
+
+function renderResults(items, q) {
+    if (!items.length) {
+        results.innerHTML = '<div class="p-8 text-center"><p class="text-gray-400 text-sm font-semibold">Aucun résultat pour <strong class="text-gray-700">&ldquo;' + q + '&rdquo;</strong></p></div>';
+        return;
+    }
+    let html = '';
+    items.forEach(p => {
+        const img = p.image
+            ? '<img src="' + p.image + '" class="w-full h-full object-cover" alt="' + p.titre + '">'
+            : '<div class="w-full h-full flex items-center justify-center text-2xl text-gray-200">📦</div>';
+        const prixBarre = p.prix_barre ? '<p class="text-xs text-gray-400 line-through">' + p.prix_barre + ' DA</p>' : '';
+        const rupture   = !p.in_stock  ? '<p class="text-xs text-red-400 font-semibold mt-0.5">Rupture</p>' : '';
+        const cat       = p.categorie  ? '<p class="text-xs text-gray-400 mt-0.5 uppercase tracking-wide">' + p.categorie + '</p>' : '';
+        html += '<a href="' + p.url + '" onclick="closeSearch()" class="search-item flex items-center gap-4 px-5 py-3.5 border-b border-gray-50 last:border-0 transition-colors">'
+              + '<div class="w-14 h-14 rounded-xl overflow-hidden bg-gray-100 flex-shrink-0">' + img + '</div>'
+              + '<div class="flex-grow min-w-0"><p class="font-bold text-gray-900 text-sm truncate">' + p.titre + '</p>' + cat + '</div>'
+              + '<div class="text-right flex-shrink-0"><p class="font-black text-sm" style=\'color:\' + BRAND_COLOR + \';\'" >' + p.prix + ' DA</p>' + prixBarre + rupture + '</div>'
+              + '</a>';
+    });
+    results.innerHTML = '<div class="px-5 pt-3 pb-1"><p class="text-xs text-gray-400 font-semibold uppercase tracking-wider">'
+        + items.length + ' résultat' + (items.length > 1 ? 's' : '') + '</p></div>'
+        + html
+        + '<div class="p-4 border-t border-gray-100 text-center"><a href="/boutique/?q=' + encodeURIComponent(q)
+        + '" onclick="closeSearch()" class="text-sm font-bold hover:underline" style="color:' + BRAND_COLOR + ';">Voir tous les résultats →</a></div>';
+}
+</script>
+{% block extra_js %}{% endblock %}
+</body>
+</html>

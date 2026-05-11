@@ -1,0 +1,33 @@
+Bonjour {{ order.nom_client }},
+
+Votre commande #{{ order.pk }} a bien été reçue. Merci !
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+RÉCAPITULATIF
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+{% for item in order.items.all %}
+• {{ item.produit.titre }} × {{ item.quantite }} — {{ item.sous_total }} DA
+{% endfor %}
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+TOTAL : {{ order.total }} DA
+
+Livraison : {{ order.get_type_livraison_display }}
+{% if order.type_livraison == 'livraison' %}Wilaya : {{ order.get_wilaya_display }}
+Commune : {{ order.commune }}{% endif %}
+Paiement : {{ order.get_mode_paiement_display }}
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+PROCHAINES ÉTAPES
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+1. Notre équipe va confirmer votre commande sous 24h.
+{% if order.mode_paiement == 'ccp' %}2. Effectuez votre virement CCP / BaridiMob.
+3. Envoyez la preuve de paiement sur : [URL]/commandes/preuve-paiement/
+4. Votre commande sera expédiée après réception du paiement.
+{% else %}2. Préparez le montant exact à la livraison ({{ order.total }} DA).
+3. Notre livreur vous contactera avant la livraison.
+{% endif %}
+
+Suivez votre commande : [URL]/commandes/suivi/?recherche={{ order.pk }}
+
+Merci pour votre confiance !
+L'équipe Boutique Maître

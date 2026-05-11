@@ -1,0 +1,76 @@
+{# commandes/templates/commandes/upload_preuve.html #}
+{% extends 'base.html' %}
+{% block title %}Envoyer preuve de paiement — {{ config.nom_boutique|default:"Ma Boutique" }}{% endblock %}
+
+{% block content %}
+<div class="max-w-lg mx-auto px-6 py-16">
+
+  {% if succes %}
+  <!-- Succès -->
+  <div class="text-center">
+    <div class="text-7xl mb-5">✅</div>
+    <h1 class="text-3xl font-black text-gray-900 mb-3">Preuve reçue !</h1>
+    <p class="text-gray-400 text-base mb-8">
+      Votre preuve de paiement a bien été transmise.
+      Notre équipe va la vérifier et confirmer l'expédition sous <strong class="text-gray-700">24h</strong>.
+    </p>
+    <a href="{% url 'commandes:suivi' %}"
+       class="inline-block font-bold text-white px-8 py-4 rounded-full hover:opacity-85 transition-opacity"
+       style="background-color:{{ config.couleur_principale|default:'#7c3aed' }};">
+      Suivre ma commande
+    </a>
+  </div>
+
+  {% else %}
+  <!-- Formulaire -->
+  <div class="text-center mb-10">
+    <p class="text-xs font-black uppercase tracking-[3px] mb-2" style="color:{{ config.couleur_principale|default:'#7c3aed' }};">CCP / BaridiMob</p>
+    <h1 class="text-4xl font-black text-gray-900 mb-3">Preuve de paiement</h1>
+    <p class="text-gray-400 text-sm">Envoyez la capture d'écran de votre virement pour que votre commande soit traitée.</p>
+  </div>
+
+  <!-- Info banque -->
+  <div class="bg-blue-50 border border-blue-200 rounded-2xl p-5 mb-8">
+    <p class="font-bold text-blue-900 text-sm mb-1">Coordonnées de virement</p>
+    <p class="text-blue-700 text-sm">CCP : <strong>XXXXXXXXXX</strong> — Clé : <strong>XX</strong></p>
+    <p class="text-blue-700 text-sm mt-1">BaridiMob : <strong>XXXX XXXX XXXX XXXX</strong></p>
+    <p class="text-blue-500 text-xs mt-2">Indiquez votre numéro de commande en référence.</p>
+  </div>
+
+  <form method="post" enctype="multipart/form-data"
+        class="bg-white border border-gray-100 rounded-2xl p-6 shadow-sm space-y-5">
+    {% csrf_token %}
+
+    {% if form.non_field_errors %}
+    <div class="bg-red-50 border border-red-200 rounded-xl p-4 text-red-700 text-sm font-semibold">
+      {{ form.non_field_errors.0 }}
+    </div>
+    {% endif %}
+
+    <div>
+      <label class="block text-xs font-bold uppercase tracking-wider text-gray-500 mb-2">Numéro de commande *</label>
+      {{ form.numero_commande }}
+      {% if form.numero_commande.errors %}<p class="text-red-500 text-xs mt-1">{{ form.numero_commande.errors.0 }}</p>{% endif %}
+    </div>
+    <div>
+      <label class="block text-xs font-bold uppercase tracking-wider text-gray-500 mb-2">Téléphone *</label>
+      {{ form.telephone }}
+      {% if form.telephone.errors %}<p class="text-red-500 text-xs mt-1">{{ form.telephone.errors.0 }}</p>{% endif %}
+    </div>
+    <div>
+      <label class="block text-xs font-bold uppercase tracking-wider text-gray-500 mb-2">Photo / Capture d'écran *</label>
+      {{ form.preuve }}
+      <p class="text-gray-400 text-xs mt-1">Formats acceptés : JPG, PNG, PDF</p>
+      {% if form.preuve.errors %}<p class="text-red-500 text-xs mt-1">{{ form.preuve.errors.0 }}</p>{% endif %}
+    </div>
+
+    <button type="submit"
+            class="w-full font-black text-white py-4 rounded-xl hover:opacity-85 transition-opacity"
+            style="background-color:{{ config.couleur_principale|default:'#7c3aed' }};">
+      Envoyer la preuve →
+    </button>
+  </form>
+  {% endif %}
+
+</div>
+{% endblock %}

@@ -25,7 +25,7 @@ SECRET_KEY = 'django-insecure-3imkr%)@9dx3px0j=uzyj+97r*=&e-g8ok(gn%d6j+-t_vx#5o
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['*']
 
 
 # Application definition
@@ -37,6 +37,9 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'boutique_config',
+    'catalogue',
+    'commandes',
 ]
 
 MIDDLEWARE = [
@@ -54,13 +57,17 @@ ROOT_URLCONF = 'core.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [],
+        'DIRS': [
+            BASE_DIR / 'catalogue' / 'templates',
+            BASE_DIR / 'commandes' / 'templates',
+        ],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
+                'boutique_config.context_processors.boutique_config_processor',
             ],
         },
     },
@@ -115,3 +122,25 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/6.0/howto/static-files/
 
 STATIC_URL = 'static/'
+
+import os
+MEDIA_URL = '/media/'
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+
+# ── Email ──────────────────────────────────────────────
+# MODE DEV : emails affichés dans le terminal
+EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+
+# MODE PRODUCTION (à configurer par client) :
+# EMAIL_BACKEND       = 'django.core.mail.backends.smtp.EmailBackend'
+# EMAIL_HOST          = 'smtp.gmail.com'
+# EMAIL_PORT          = 587
+# EMAIL_USE_TLS       = True
+# EMAIL_HOST_USER     = 'email@client.com'
+# EMAIL_HOST_PASSWORD = 'mot_de_passe_app_gmail'
+
+DEFAULT_FROM_EMAIL = 'Boutique Maître <noreply@boutique.dz>'
+ADMIN_ORDER_EMAIL  = ''
+
+# ── Nom boutique (utilisé dans les emails) ─────────────
+BOUTIQUE_NOM = 'Boutique Maître'

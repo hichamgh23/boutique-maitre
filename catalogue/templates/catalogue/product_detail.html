@@ -1,0 +1,100 @@
+{# catalogue/templates/catalogue/product_detail.html #}
+{% extends 'base.html' %}
+
+{% block content %}
+
+<div class="max-w-6xl mx-auto px-4 py-12">
+
+    <!-- Retour -->
+    <a href="{% url 'catalogue:home' %}"
+       class="inline-flex items-center gap-2 text-sm text-gray-500 hover:text-primary
+              transition-colors mb-8 font-medium">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none"
+             viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7"/>
+        </svg>
+        Retour à la boutique
+    </a>
+
+    <!-- Grille 2 colonnes -->
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-10">
+
+        <!-- Image -->
+        <div>
+            {% if produit.image_principale %}
+            <img src="{{ produit.image_principale.url }}"
+                 alt="{{ produit.titre }}"
+                 class="w-full h-auto max-h-[520px] object-cover rounded-2xl shadow-lg">
+            {% else %}
+            <div class="w-full h-96 bg-gray-100 rounded-2xl flex items-center justify-center">
+                <span class="text-gray-300 text-8xl">📦</span>
+            </div>
+            {% endif %}
+        </div>
+
+        <!-- Infos -->
+        <div class="flex flex-col justify-center">
+
+            {% if produit.categorie %}
+            <span class="inline-block bg-gray-100 text-gray-500 text-xs font-semibold
+                         uppercase tracking-widest px-3 py-1 rounded-full w-fit mb-4">
+                {{ produit.categorie.nom }}
+            </span>
+            {% endif %}
+
+            <h1 class="text-4xl font-extrabold text-gray-900 leading-tight mb-4">
+                {{ produit.titre }}
+            </h1>
+
+            <!-- Prix -->
+            <div class="flex items-baseline gap-3 mb-6">
+                {% if produit.prix_vente %}
+                <span class="text-3xl font-bold text-primary">{{ produit.prix_vente }} DZD</span>
+                <del class="text-gray-400 text-lg">{{ produit.prix_regulier }} DZD</del>
+                {% else %}
+                <span class="text-3xl font-bold text-primary">{{ produit.prix_regulier }} DZD</span>
+                {% endif %}
+            </div>
+
+            <!-- Description -->
+            <p class="text-gray-500 leading-relaxed mb-8">{{ produit.description }}</p>
+
+            <!-- Quantité + Bouton -->
+            <div>
+                {% if produit.is_in_stock %}
+                <form method="post" action="{% url 'commandes:add_to_cart' produit.pk %}">
+                    {% csrf_token %}
+                    <label class="block text-xs font-bold uppercase tracking-wider text-gray-500 mb-2">Quantité</label>
+                    <div class="flex items-center gap-4 mb-4">
+                        <input type="number" name="quantity" value="1" min="1" max="{{ produit.stock_quantite }}"
+                               class="w-24 border border-gray-200 rounded-xl px-3 py-3 text-center
+                                      text-gray-800 font-bold focus:outline-none focus:ring-2 transition-all">
+                        <span class="text-xs text-gray-400">{{ produit.stock_quantite }} disponibles</span>
+                    </div>
+                    <button type="submit"
+                            class="w-full text-white font-bold py-4 rounded-xl hover:opacity-85 transition-opacity shadow-md text-base"
+                            style="background-color:{{ config.couleur_principale|default:'#7c3aed' }};">
+                        Ajouter au panier →
+                    </button>
+                </form>
+                {% else %}
+                <button disabled
+                        class="w-full bg-gray-100 text-gray-400 font-bold py-4 rounded-xl
+                               cursor-not-allowed text-base">
+                    Rupture de stock
+                </button>
+                {% endif %}
+            </div>
+
+            <!-- Réassurance -->
+            <div class="mt-6 flex flex-col gap-2 text-sm text-gray-400">
+                <span>🚚 Livraison dans les 58 Wilayas</span>
+                <span>💵 Paiement à la livraison disponible</span>
+            </div>
+
+        </div>
+    </div>
+
+</div>
+
+{% endblock %}

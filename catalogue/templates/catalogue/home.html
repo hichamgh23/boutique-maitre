@@ -1,0 +1,138 @@
+{# catalogue/templates/catalogue/home.html #}
+{% extends 'base.html' %}
+
+{% block content %}
+
+<!-- ══════════════ HERO ══════════════ -->
+<section class="bg-gray-950 flex items-center" style="min-height: calc(100vh - 68px);">
+    <div class="max-w-screen-xl mx-auto px-5 py-12 text-center w-full">
+
+        <h1 class="text-5xl md:text-8xl font-black text-white leading-[1.06] tracking-tight mb-5 md:mb-6">
+            {{ config.nom_boutique|default:"Ma Boutique" }}
+        </h1>
+
+        <p class="text-gray-400 text-base md:text-xl max-w-lg mx-auto leading-relaxed mb-10 md:mb-12 px-2">
+            {% if config.description %}{{ config.description }}{% else %}Des produits de qualité livrés dans les <span class="text-white font-semibold">58 wilayas</span> d'Algérie. Paiement à la livraison disponible.{% endif %}
+        </p>
+
+        <div class="flex flex-col sm:flex-row items-center justify-center gap-3 px-4 sm:px-0">
+            <a href="{% url 'catalogue:boutique' %}"
+               class="w-full sm:w-auto inline-flex items-center justify-center gap-2 font-bold text-base px-8 py-4 rounded-2xl text-white hover:opacity-85 transition-opacity"
+               style="background-color:{{ config.couleur_principale|default:'#7c3aed' }};">
+                Voir tous les produits
+                <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3"/>
+                </svg>
+            </a>
+            <a href="{% url 'catalogue:comment_ca_marche' %}"
+               class="w-full sm:w-auto inline-flex items-center justify-center gap-2 font-bold text-base px-8 py-4 rounded-2xl border border-gray-700 text-gray-300 hover:border-gray-500 hover:text-white transition-all">
+                Comment ça marche ?
+            </a>
+        </div>
+
+    </div>
+</section>
+
+<!-- ══════════════ MEILLEURES VENTES ══════════════ -->
+<section class="max-w-screen-xl mx-auto px-6 py-20">
+
+    <div class="flex items-end justify-between mb-12">
+        <div>
+            <p class="text-xs font-black uppercase tracking-[3px] mb-2"
+               style="color: {{ config.couleur_principale|default:'#7c3aed' }};">Sélection</p>
+            <h2 class="text-4xl font-black text-gray-900">Nos Meilleures Ventes</h2>
+        </div>
+        <a href="{% url 'catalogue:boutique' %}"
+           class="hidden md:inline-flex items-center gap-1.5 text-sm font-bold text-gray-500 hover:text-gray-900 transition-colors">
+            Voir tout
+            <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3"/>
+            </svg>
+        </a>
+    </div>
+
+    {% if meilleures_ventes %}
+    <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-x-5 gap-y-10">
+        {% for produit in meilleures_ventes %}
+        <div class="group flex flex-col">
+
+            <div class="relative rounded-2xl overflow-hidden bg-gray-100 mb-4" style="aspect-ratio: 3/4;">
+                {% if produit.image_principale %}
+                <img src="{{ produit.image_principale.url }}"
+                     alt="{{ produit.titre }}"
+                     class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500">
+                {% else %}
+                <div class="w-full h-full flex items-center justify-center">
+                    <svg class="w-14 h-14 text-gray-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1"
+                              d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+                    </svg>
+                </div>
+                {% endif %}
+
+                <div class="absolute top-3 left-3 flex flex-col gap-1.5">
+                    {% if produit.prix_vente %}
+                    <span class="bg-red-500 text-white text-[10px] font-black px-2.5 py-1 rounded-full uppercase">Promo</span>
+                    {% endif %}
+                    {% if not produit.is_in_stock %}
+                    <span class="bg-gray-800/90 text-white text-[10px] font-black px-2.5 py-1 rounded-full uppercase">Rupture</span>
+                    {% endif %}
+                </div>
+
+            </div>
+
+            <div class="flex-grow">
+                {% if produit.categorie %}
+                <p class="text-[11px] font-semibold text-gray-400 uppercase tracking-wider mb-1">{{ produit.categorie.nom }}</p>
+                {% endif %}
+                <h3 class="font-bold text-gray-900 text-sm leading-snug mb-2">{{ produit.titre }}</h3>
+                <div class="flex items-center gap-2">
+                    {% if produit.prix_vente %}
+                    <span class="font-black text-base" style="color: {{ config.couleur_principale|default:'#7c3aed' }};">{{ produit.prix_vente }} DA</span>
+                    <del class="text-gray-400 text-sm">{{ produit.prix_regulier }} DA</del>
+                    {% else %}
+                    <span class="font-black text-base text-gray-900">{{ produit.prix_regulier }} DA</span>
+                    {% endif %}
+                </div>
+            </div>
+
+            <div class="mt-3">
+                {% if produit.is_in_stock %}
+                <form method="post" action="{% url 'commandes:add_to_cart' produit.pk %}">
+                    {% csrf_token %}
+                    <input type="hidden" name="quantity" value="1">
+                    <button type="submit"
+                            class="w-full font-black text-white py-3.5 rounded-xl text-sm hover:opacity-85 transition-opacity touch-manipulation"
+                            style="background-color:{{ config.couleur_principale|default:'#7c3aed' }};">
+                        Ajouter au panier
+                    </button>
+                </form>
+                {% else %}
+                <button disabled class="w-full text-sm font-bold py-3 rounded-xl bg-gray-100 text-gray-400 cursor-not-allowed">Rupture de stock</button>
+                {% endif %}
+            </div>
+
+        </div>
+        {% endfor %}
+    </div>
+
+    <div class="text-center mt-14">
+        <a href="{% url 'catalogue:boutique' %}"
+           class="inline-flex items-center gap-2 font-bold text-sm px-8 py-4 rounded-full border-2 border-gray-900 text-gray-900 hover:bg-gray-900 hover:text-white transition-all">
+            Voir tous les produits
+            <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3"/>
+            </svg>
+        </a>
+    </div>
+
+    {% else %}
+    <div class="text-center py-24 bg-gray-50 rounded-3xl">
+        <p class="text-6xl mb-4">📦</p>
+        <p class="text-lg font-bold text-gray-400">Aucun produit disponible.</p>
+    </div>
+    {% endif %}
+
+</section>
+
+{% endblock %}

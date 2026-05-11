@@ -1,0 +1,135 @@
+{# catalogue/templates/catalogue/contact.html #}
+{% extends 'base.html' %}
+{% block title %}Contact — {{ config.nom_boutique|default:"Ma Boutique" }}{% endblock %}
+
+{% block content %}
+
+<!-- HEADER -->
+<section class="bg-gray-950 py-16 text-center">
+    <div class="max-w-screen-xl mx-auto px-6">
+        <p class="text-xs font-black uppercase tracking-[3px] mb-3"
+           style="color: {{ config.couleur_principale|default:'#6366f1' }};">Contactez-nous</p>
+        <h1 class="text-5xl font-black text-white mb-4">On est là pour vous</h1>
+        <p class="text-gray-400 text-lg max-w-md mx-auto leading-relaxed">
+            Une question ? Un problème avec votre commande ?
+            Notre équipe vous répond rapidement.
+        </p>
+    </div>
+</section>
+
+<!-- CONTENU -->
+<section class="max-w-screen-xl mx-auto px-6 py-20">
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-16">
+
+        <!-- Infos contact -->
+        <div>
+            <h2 class="text-2xl font-black text-gray-900 mb-8">Nos coordonnées</h2>
+
+            <div class="space-y-5">
+
+                <div class="flex items-start gap-4 p-5 rounded-2xl bg-gray-50 border border-gray-100">
+                    <div class="w-12 h-12 rounded-xl flex items-center justify-center text-2xl flex-shrink-0 bg-green-50">💬</div>
+                    <div>
+                        <p class="font-bold text-gray-900 text-sm mb-1">WhatsApp</p>
+                        <p class="text-gray-500 text-sm">Réponse en moins de 30 min</p>
+                        {% if config.whatsapp %}
+                        <a href="https://wa.me/{{ config.whatsapp }}"
+                           class="inline-flex items-center gap-1.5 text-sm font-bold mt-2 hover:opacity-75 transition-opacity"
+                           style="color: {{ config.couleur_principale|default:'#6366f1' }};" target="_blank">
+                            Ouvrir WhatsApp →
+                        </a>
+                        {% else %}
+                        <p class="text-gray-400 text-sm mt-1 italic">Non configuré</p>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <div class="flex items-start gap-4 p-5 rounded-2xl bg-gray-50 border border-gray-100">
+                    <div class="w-12 h-12 rounded-xl flex items-center justify-center text-2xl flex-shrink-0 bg-blue-50">📧</div>
+                    <div>
+                        <p class="font-bold text-gray-900 text-sm mb-1">Email</p>
+                        <p class="text-gray-500 text-sm">Réponse sous 24h</p>
+                        {% if config.email_contact %}
+                        <a href="mailto:{{ config.email_contact }}"
+                           class="inline-flex items-center gap-1.5 text-sm font-bold mt-2 hover:opacity-75 transition-opacity"
+                           style="color: {{ config.couleur_principale|default:'#6366f1' }};">
+                            {{ config.email_contact }}
+                        </a>
+                        {% else %}
+                        <p class="text-gray-400 text-sm mt-1 italic">Non configuré</p>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <div class="flex items-start gap-4 p-5 rounded-2xl bg-gray-50 border border-gray-100">
+                    <div class="w-12 h-12 rounded-xl flex items-center justify-center text-2xl flex-shrink-0 bg-red-50">📍</div>
+                    <div>
+                        <p class="font-bold text-gray-900 text-sm mb-1">Livraison</p>
+                        <p class="text-gray-500 text-sm">Partout en Algérie · 58 wilayas</p>
+                        <p class="text-gray-500 text-sm mt-1">Domicile · Stop Desk Yalidine</p>
+                    </div>
+                </div>
+
+                <div class="flex items-start gap-4 p-5 rounded-2xl bg-gray-50 border border-gray-100">
+                    <div class="w-12 h-12 rounded-xl flex items-center justify-center text-2xl flex-shrink-0 bg-yellow-50">💳</div>
+                    <div>
+                        <p class="font-bold text-gray-900 text-sm mb-1">Modes de paiement</p>
+                        <p class="text-gray-500 text-sm">Paiement à la livraison (COD)</p>
+                        <p class="text-gray-500 text-sm mt-0.5">Virement CCP · BaridiMob</p>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
+        <!-- Formulaire -->
+        <div>
+            <h2 class="text-2xl font-black text-gray-900 mb-8">Envoyer un message</h2>
+
+            <form class="space-y-5">
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-2">Nom</label>
+                        <input type="text" placeholder="Votre nom"
+                               class="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm text-gray-900 placeholder-gray-400
+                                      focus:outline-none focus:ring-2 focus:border-transparent transition-all"
+                               style="--tw-ring-color: {{ config.couleur_principale|default:'#6366f1' }};">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-2">Téléphone</label>
+                        <input type="tel" placeholder="05XXXXXXXX"
+                               class="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm text-gray-900 placeholder-gray-400
+                                      focus:outline-none focus:ring-2 focus:border-transparent transition-all">
+                    </div>
+                </div>
+
+                <div>
+                    <label class="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-2">Sujet</label>
+                    <input type="text" placeholder="Ex : Question sur une commande"
+                           class="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm text-gray-900 placeholder-gray-400
+                                  focus:outline-none focus:ring-2 focus:border-transparent transition-all">
+                </div>
+
+                <div>
+                    <label class="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-2">Message</label>
+                    <textarea rows="5" placeholder="Votre message..."
+                              class="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm text-gray-900 placeholder-gray-400
+                                     focus:outline-none focus:ring-2 focus:border-transparent transition-all resize-none"></textarea>
+                </div>
+
+                <button type="submit"
+                        class="w-full font-bold text-sm py-4 rounded-xl text-white hover:opacity-85 transition-opacity"
+                        style="background-color: {{ config.couleur_principale|default:'#6366f1' }};">
+                    Envoyer le message →
+                </button>
+
+                <p class="text-xs text-gray-400 text-center">
+                    Pour une réponse immédiate, contactez-nous directement sur WhatsApp.
+                </p>
+            </form>
+        </div>
+
+    </div>
+</section>
+
+{% endblock %}

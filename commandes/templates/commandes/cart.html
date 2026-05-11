@@ -1,0 +1,244 @@
+{# commandes/templates/commandes/cart.html #}
+{% extends 'base.html' %}
+{% block title %}Panier — {{ config.nom_boutique|default:"Ma Boutique" }}{% endblock %}
+
+{% block extra_css %}
+<style>
+  .qty-btn {
+    width: 44px; height: 44px;
+    border-radius: 12px;
+    background: #f3f4f6;
+    border: none;
+    font-size: 1.3rem;
+    font-weight: 900;
+    color: #374151;
+    display: flex; align-items: center; justify-content: center;
+    cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
+    touch-action: manipulation;
+    user-select: none;
+    transition: background .1s;
+  }
+  .qty-btn:active { background: #e5e7eb; transform: scale(.93); }
+  .qty-btn.minus:active { background: #fee2e2; color: #dc2626; }
+  .qty-btn.plus:active  { background: #dcfce7; color: #16a34a; }
+  .cart-row { transition: opacity .25s, transform .25s; }
+  .cart-row.removing { opacity: 0; transform: translateX(30px); }
+  .qty-num { transition: transform .15s; display: inline-block; }
+  .qty-num.pop { transform: scale(1.4); }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="max-w-screen-lg mx-auto px-4 py-8">
+
+  <h1 class="text-2xl font-black text-gray-900 mb-6">
+    Mon Panier
+    <span class="text-base font-semibold text-gray-400 ml-2" id="item-count">
+      ({{ items|length }} article{{ items|length|pluralize }})
+    </span>
+  </h1>
+
+  {% if items %}
+  <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+
+    <!-- Articles -->
+    <div class="lg:col-span-2 space-y-3" id="cart-list">
+      {% for item in items %}
+      <div class="cart-row bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden"
+           data-id="{{ item.produit.pk }}"
+           data-url="{% url 'commandes:update_cart' item.produit.pk %}">
+
+        <div class="flex items-center gap-3 p-4">
+
+          <!-- Image -->
+          <div class="flex-shrink-0 rounded-xl overflow-hidden bg-gray-100"
+               style="width:64px;height:64px;">
+            {% if item.produit.image_principale %}
+            <img src="{{ item.produit.image_principale.url }}"
+                 class="w-full h-full object-cover"
+                 alt="{{ item.produit.titre }}"
+                 draggable="false">
+            {% else %}
+            <div class="w-full h-full flex items-center justify-center text-2xl">📦</div>
+            {% endif %}
+          </div>
+
+          <!-- Infos -->
+          <div class="flex-grow min-w-0">
+            <p class="font-bold text-gray-900 text-sm leading-tight line-clamp-2">
+              {{ item.produit.titre }}
+            </p>
+            <p class="text-gray-400 text-xs mt-1">{{ item.prix }} DA / unité</p>
+          </div>
+
+          <!-- Sous-total -->
+          <div class="flex-shrink-0 text-right">
+            <p class="sous-total font-black text-base"
+               style="color:{{ config.couleur_principale|default:'#7c3aed' }};">
+              {{ item.sous_total }} DA
+            </p>
+          </div>
+
+        </div>
+
+        <!-- Barre du bas : quantité + retirer -->
+        <div class="flex items-center justify-between px-4 pb-4 pt-1">
+
+          <!-- Contrôle quantité -->
+          <div class="flex items-center gap-3">
+            <button class="qty-btn minus" data-delta="-1" type="button">−</button>
+            <span class="qty-num font-black text-gray-900 text-lg w-6 text-center">
+              {{ item.quantite }}
+            </span>
+            <button class="qty-btn plus" data-delta="1" type="button">+</button>
+          </div>
+
+          <!-- Retirer -->
+          <button class="qty-btn remove flex items-center gap-1.5 px-4 text-sm font-bold text-red-400"
+                  style="width:auto; background:transparent;"
+                  data-delta="remove" type="button">
+            <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+            </svg>
+            Retirer
+          </button>
+
+        </div>
+      </div>
+      {% endfor %}
+
+      <a href="{% url 'catalogue:boutique' %}"
+         class="inline-flex items-center gap-2 text-sm font-semibold text-gray-400 mt-2 py-2">
+        ← Continuer mes achats
+      </a>
+    </div>
+
+    <!-- Récapitulatif (sticky sur desktop) -->
+    <div class="lg:col-span-1">
+      <div class="bg-white rounded-2xl border border-gray-100 shadow-sm p-5 lg:sticky lg:top-20">
+
+        <h2 class="font-black text-gray-900 mb-4">Récapitulatif</h2>
+
+        <div id="recap-lines" class="space-y-2 mb-4 text-sm">
+          {% for item in items %}
+          <div class="recap-line flex justify-between text-gray-500"
+               data-id="{{ item.produit.pk }}">
+            <span class="truncate max-w-[150px]">
+              {{ item.produit.titre }}
+              <span class="qty-tag text-gray-400">×{{ item.quantite }}</span>
+            </span>
+            <span class="sous-total-recap font-semibold text-gray-700 flex-shrink-0 ml-2">
+              {{ item.sous_total }} DA
+            </span>
+          </div>
+          {% endfor %}
+        </div>
+
+        <div class="border-t border-gray-100 pt-4 flex justify-between items-center font-black text-lg mb-5">
+          <span>Total</span>
+          <span id="cart-total" style="color:{{ config.couleur_principale|default:'#7c3aed' }};">
+            {{ total }} DA
+          </span>
+        </div>
+
+        <a href="{% url 'commandes:checkout' %}"
+           class="block w-full text-center font-bold text-white py-4 rounded-2xl hover:opacity-85 transition-opacity text-base"
+           style="background-color:{{ config.couleur_principale|default:'#7c3aed' }};">
+          Commander →
+        </a>
+
+      </div>
+    </div>
+
+  </div>
+
+  {% else %}
+  <!-- Panier vide -->
+  <div class="text-center py-20">
+    <p class="text-6xl mb-4">🛒</p>
+    <p class="text-lg font-bold text-gray-400 mb-6">Votre panier est vide.</p>
+    <a href="{% url 'catalogue:boutique' %}"
+       class="inline-block font-bold text-sm px-8 py-4 rounded-full text-white hover:opacity-85 transition-opacity"
+       style="background-color:{{ config.couleur_principale|default:'#7c3aed' }};">
+      Voir le catalogue
+    </a>
+  </div>
+  {% endif %}
+
+</div>
+
+{% if items %}
+<script>
+const CSRF = "{{ csrf_token }}";
+
+document.querySelectorAll('.cart-row').forEach(function(row) {
+  const id       = row.dataset.id;
+  const url      = row.dataset.url;
+  const qtyEl    = row.querySelector('.qty-num');
+  const subEl    = row.querySelector('.sous-total');
+  const totalEl  = document.getElementById('cart-total');
+  const recapLn  = document.querySelector('.recap-line[data-id="' + id + '"]');
+  const countEl  = document.getElementById('item-count');
+
+  let qty = parseInt(qtyEl.textContent.trim());
+  let busy = false;
+
+  row.querySelectorAll('.qty-btn').forEach(function(btn) {
+    btn.addEventListener('click', function(e) {
+      e.preventDefault();
+      if (busy) return;
+      busy = true;
+
+      var delta  = btn.dataset.delta;
+      var newQty = delta === 'remove' ? 0 : qty + parseInt(delta);
+      if (newQty < 0) { busy = false; return; }
+
+      var body = new URLSearchParams({ quantity: newQty }).toString();
+
+      fetch(url, {
+        method: 'POST',
+        headers: {
+          'X-CSRFToken': CSRF,
+          'Content-Type': 'application/x-www-form-urlencoded',
+        },
+        body: body,
+      })
+      .then(function(r) { return r.json(); })
+      .then(function(data) {
+
+        if (data.removed) {
+          row.classList.add('removing');
+          if (recapLn) recapLn.remove();
+          setTimeout(function() {
+            row.remove();
+            totalEl.textContent = data.cart_total + ' DA';
+            var remaining = document.querySelectorAll('.cart-row').length;
+            if (remaining === 0) {
+              location.reload();
+            } else {
+              countEl.textContent = '(' + remaining + ' article' + (remaining > 1 ? 's' : '') + ')';
+            }
+          }, 260);
+        } else {
+          qty = data.quantite;
+          qtyEl.textContent = qty;
+          subEl.textContent = data.sous_total + ' DA';
+          totalEl.textContent = data.cart_total + ' DA';
+          if (recapLn) {
+            recapLn.querySelector('.qty-tag').textContent = '×' + qty;
+            recapLn.querySelector('.sous-total-recap').textContent = data.sous_total + ' DA';
+          }
+          qtyEl.classList.add('pop');
+          setTimeout(function() { qtyEl.classList.remove('pop'); }, 180);
+          busy = false;
+        }
+      })
+      .catch(function() { busy = false; });
+    });
+  });
+});
+</script>
+{% endif %}
+
+{% endblock %}

@@ -1,0 +1,152 @@
+{# catalogue/templates/catalogue/boutique.html #}
+{% extends 'base.html' %}
+{% block title %}Boutique — {{ config.nom_boutique|default:"Ma Boutique" }}{% endblock %}
+
+{% block content %}
+
+<!-- HEADER COMPACT + FILTRES -->
+<div class="bg-white border-b border-gray-100 sticky top-[68px] z-40">
+    <div class="max-w-screen-xl mx-auto px-4">
+
+        <!-- Titre + compteur -->
+        <div class="flex items-center justify-between py-3 border-b border-gray-100">
+            <h1 class="text-sm font-black text-gray-900 uppercase tracking-wide">
+                {% if categorie_active %}{{ categorie_active.nom }}{% else %}Tous les produits{% endif %}
+            </h1>
+            <span class="text-xs text-gray-400 font-semibold">{{ total_count }} article{{ total_count|pluralize }}</span>
+        </div>
+
+        <!-- Filtres catégories scrollables -->
+        <div class="flex gap-2 py-3 overflow-x-auto scrollbar-hide" style="-webkit-overflow-scrolling:touch;">
+            <a href="{% url 'catalogue:boutique' %}{% if query %}?q={{ query }}{% endif %}"
+               class="flex-shrink-0 px-4 py-2 rounded-full text-xs font-bold border-2 transition-all whitespace-nowrap
+                      {% if not categorie_active %}text-white border-transparent{% else %}text-gray-500 border-gray-200{% endif %}"
+               {% if not categorie_active %}style="background-color:{{ config.couleur_principale|default:'#7c3aed' }}; border-color:{{ config.couleur_principale|default:'#7c3aed' }};"{% endif %}>
+                Tous
+            </a>
+            {% for cat in categories %}
+            <a href="?categorie={{ cat.slug }}{% if query %}&q={{ query }}{% endif %}"
+               class="flex-shrink-0 px-4 py-2 rounded-full text-xs font-bold border-2 transition-all whitespace-nowrap
+                      {% if categorie_active.slug == cat.slug %}text-white border-transparent{% else %}text-gray-500 border-gray-200{% endif %}"
+               {% if categorie_active.slug == cat.slug %}style="background-color:{{ config.couleur_principale|default:'#7c3aed' }}; border-color:{{ config.couleur_principale|default:'#7c3aed' }};"{% endif %}>
+                {{ cat.nom }}
+            </a>
+            {% endfor %}
+        </div>
+
+    </div>
+</div>
+
+<section class="max-w-screen-xl mx-auto px-4 py-8">
+
+    {% if query %}
+    <p class="text-sm text-gray-500 mb-6">
+        Résultats pour <strong class="text-gray-900">« {{ query }} »</strong>
+    </p>
+    {% endif %}
+
+    <!-- Grille -->
+    {% if produits %}
+    <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-x-5 gap-y-10">
+        {% for produit in produits %}
+        <div class="group flex flex-col">
+
+            <div class="relative rounded-2xl overflow-hidden bg-gray-100 mb-4" style="aspect-ratio:3/4;">
+                {% if produit.image_principale %}
+                <img src="{{ produit.image_principale.url }}" alt="{{ produit.titre }}"
+                     class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500">
+                {% else %}
+                <div class="w-full h-full flex items-center justify-center">
+                    <svg class="w-14 h-14 text-gray-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1"
+                              d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+                    </svg>
+                </div>
+                {% endif %}
+                <div class="absolute top-3 left-3 flex flex-col gap-1.5">
+                    {% if produit.prix_vente %}<span class="bg-red-500 text-white text-[10px] font-black px-2.5 py-1 rounded-full uppercase">Promo</span>{% endif %}
+                    {% if not produit.is_in_stock %}<span class="bg-gray-800/90 text-white text-[10px] font-black px-2.5 py-1 rounded-full uppercase">Rupture</span>{% endif %}
+                </div>
+            </div>
+
+            <div class="flex-grow">
+                {% if produit.categorie %}<p class="text-[11px] font-semibold text-gray-400 uppercase tracking-wider mb-1">{{ produit.categorie.nom }}</p>{% endif %}
+                <h3 class="font-bold text-gray-900 text-sm leading-snug mb-2">{{ produit.titre }}</h3>
+                <div class="flex items-center gap-2">
+                    {% if produit.prix_vente %}
+                    <span class="font-black text-base" style="color:{{ config.couleur_principale|default:'#7c3aed' }};">{{ produit.prix_vente }} DA</span>
+                    <del class="text-gray-400 text-sm">{{ produit.prix_regulier }} DA</del>
+                    {% else %}
+                    <span class="font-black text-base text-gray-900">{{ produit.prix_regulier }} DA</span>
+                    {% endif %}
+                </div>
+            </div>
+
+            <div class="mt-3">
+                {% if produit.is_in_stock %}
+                <form method="post" action="{% url 'commandes:add_to_cart' produit.pk %}">
+                    {% csrf_token %}
+                    <input type="hidden" name="quantity" value="1">
+                    <button type="submit"
+                            class="w-full font-black text-white py-3.5 rounded-xl text-sm hover:opacity-85 transition-opacity touch-manipulation"
+                            style="background-color:{{ config.couleur_principale|default:'#7c3aed' }};">
+                        Ajouter au panier
+                    </button>
+                </form>
+                {% else %}
+                <button disabled class="w-full text-sm font-bold py-3 rounded-xl bg-gray-100 text-gray-400 cursor-not-allowed">Rupture de stock</button>
+                {% endif %}
+            </div>
+
+        </div>
+        {% endfor %}
+    </div>
+
+    <!-- Pagination -->
+    {% if produits.has_other_pages %}
+    <div class="flex items-center justify-center gap-2 mt-16">
+        {% if produits.has_previous %}
+        <a href="?{% if query %}q={{ query }}&{% endif %}{% if categorie_active %}categorie={{ categorie_active.slug }}&{% endif %}page={{ produits.previous_page_number }}"
+           class="w-10 h-10 rounded-xl border-2 border-gray-200 flex items-center justify-center text-gray-600 hover:border-gray-900 hover:bg-gray-900 hover:text-white transition-all font-bold text-sm">
+            ←
+        </a>
+        {% endif %}
+
+        {% for num in produits.paginator.page_range %}
+        {% if produits.number == num %}
+        <span class="w-10 h-10 rounded-xl text-white flex items-center justify-center font-black text-sm"
+              style="background-color:{{ config.couleur_principale|default:'#7c3aed' }};">{{ num }}</span>
+        {% elif num > produits.number|add:'-3' and num < produits.number|add:'3' %}
+        <a href="?{% if query %}q={{ query }}&{% endif %}{% if categorie_active %}categorie={{ categorie_active.slug }}&{% endif %}page={{ num }}"
+           class="w-10 h-10 rounded-xl border-2 border-gray-200 flex items-center justify-center text-gray-600 hover:border-gray-900 hover:bg-gray-900 hover:text-white transition-all font-bold text-sm">
+            {{ num }}
+        </a>
+        {% endif %}
+        {% endfor %}
+
+        {% if produits.has_next %}
+        <a href="?{% if query %}q={{ query }}&{% endif %}{% if categorie_active %}categorie={{ categorie_active.slug }}&{% endif %}page={{ produits.next_page_number }}"
+           class="w-10 h-10 rounded-xl border-2 border-gray-200 flex items-center justify-center text-gray-600 hover:border-gray-900 hover:bg-gray-900 hover:text-white transition-all font-bold text-sm">
+            →
+        </a>
+        {% endif %}
+    </div>
+    <p class="text-center text-xs text-gray-400 mt-3">
+        Page {{ produits.number }} sur {{ produits.paginator.num_pages }}
+    </p>
+    {% endif %}
+
+    {% else %}
+    <div class="text-center py-24 bg-gray-50 rounded-3xl">
+        <p class="text-6xl mb-5">🔍</p>
+        <p class="text-xl font-bold text-gray-400 mb-2">Aucun produit trouvé.</p>
+        {% if query %}
+        <p class="text-gray-400 text-sm mb-5">Aucun résultat pour « {{ query }} »</p>
+        {% endif %}
+        <a href="{% url 'catalogue:boutique' %}" class="inline-block text-sm font-bold underline"
+           style="color:{{ config.couleur_principale|default:'#7c3aed' }};">Voir tous les produits</a>
+    </div>
+    {% endif %}
+
+</section>
+{% endblock %}

@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+    body { font-family: 'Segoe UI', Arial, sans-serif; background:#f5f5f5; margin:0; padding:0; }
+    .wrap { max-width:580px; margin:32px auto; background:#fff; border-radius:16px; overflow:hidden; box-shadow:0 4px 24px rgba(0,0,0,.08); }
+    .header { background:#111827; padding:32px; text-align:center; }
+    .header h1 { color:#fff; margin:0; font-size:22px; font-weight:800; }
+    .header p  { color:rgba(255,255,255,.6); margin:6px 0 0; font-size:14px; }
+    .body { padding:32px; }
+    .greeting { font-size:18px; font-weight:700; color:#111; margin-bottom:8px; }
+    .sub { color:#666; font-size:14px; margin-bottom:28px; }
+    .order-box { background:#f8f8f8; border-radius:12px; padding:20px; margin-bottom:24px; }
+    .order-box h3 { font-size:13px; font-weight:700; text-transform:uppercase; letter-spacing:1px; color:#999; margin:0 0 14px; }
+    .item-row { display:flex; justify-content:space-between; font-size:14px; margin-bottom:8px; }
+    .item-row .name { color:#333; }
+    .item-row .price { font-weight:700; color:#111; }
+    .divider { border:none; border-top:1px solid #eee; margin:14px 0; }
+    .total-row { display:flex; justify-content:space-between; font-size:16px; font-weight:800; }
+    .steps { margin:24px 0; }
+    .steps h3 { font-size:13px; font-weight:700; text-transform:uppercase; letter-spacing:1px; color:#999; margin-bottom:14px; }
+    .step { display:flex; gap:14px; align-items:flex-start; margin-bottom:14px; }
+    .step-num { background:#111827; color:#fff; border-radius:50%; width:28px; height:28px; display:flex; align-items:center; justify-content:center; font-size:12px; font-weight:800; flex-shrink:0; }
+    .step-text { font-size:14px; color:#444; line-height:1.5; }
+    .step-text strong { color:#111; display:block; }
+    .btn { display:block; width:100%; text-align:center; background:#111827; color:#fff; text-decoration:none; padding:14px; border-radius:10px; font-weight:700; font-size:14px; margin-top:24px; }
+    .footer { background:#f8f8f8; padding:20px 32px; text-align:center; font-size:12px; color:#aaa; border-top:1px solid #eee; }
+  </style>
+</head>
+<body>
+<div class="wrap">
+  <div class="header">
+    <h1>Commande reçue ✅</h1>
+    <p>Commande #{{ order.pk }} — {{ order.date_commande|date:"d/m/Y H:i" }}</p>
+  </div>
+
+  <div class="body">
+    <p class="greeting">Bonjour {{ order.nom_client }} 👋</p>
+    <p class="sub">
+      Votre commande a bien été enregistrée. Notre équipe va la confirmer sous <strong>24h</strong>.
+    </p>
+
+    <!-- Articles -->
+    <div class="order-box">
+      <h3>Votre commande</h3>
+      {% for item in order.items.all %}
+      <div class="item-row">
+        <span class="name">{{ item.produit.titre }} <span style="color:#aaa;">×{{ item.quantite }}</span></span>
+        <span class="price">{{ item.sous_total }} DA</span>
+      </div>
+      {% endfor %}
+      <hr class="divider">
+      <div class="total-row">
+        <span>Total</span>
+        <span>{{ order.total }} DA</span>
+      </div>
+    </div>
+
+    <!-- Infos livraison -->
+    <div class="order-box">
+      <h3>Livraison & paiement</h3>
+      <div class="item-row">
+        <span class="name">Mode de réception</span>
+        <span class="price">{{ order.get_type_livraison_display }}</span>
+      </div>
+      {% if order.type_livraison == 'livraison' %}
+      <div class="item-row">
+        <span class="name">Wilaya</span>
+        <span class="price">{{ order.get_wilaya_display }}</span>
+      </div>
+      {% endif %}
+      <div class="item-row">
+        <span class="name">Paiement</span>
+        <span class="price">{{ order.get_mode_paiement_display }}</span>
+      </div>
+    </div>
+
+    <!-- Étapes suivantes -->
+    <div class="steps">
+      <h3>Prochaines étapes</h3>
+
+      <div class="step">
+        <div class="step-num">1</div>
+        <div class="step-text">
+          <strong>Confirmation de commande</strong>
+          Notre équipe confirme votre commande sous 24h.
+        </div>
+      </div>
+
+      {% if order.mode_paiement == 'ccp' %}
+      <div class="step">
+        <div class="step-num">2</div>
+        <div class="step-text">
+          <strong>Virement CCP / BaridiMob</strong>
+          Effectuez votre virement du montant exact ({{ order.total }} DA).
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num">3</div>
+        <div class="step-text">
+          <strong>Envoyez la preuve de paiement</strong>
+          Uploadez la capture d'écran de votre virement depuis notre site.
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num">4</div>
+        <div class="step-text">
+          <strong>Expédition</strong>
+          Votre commande est expédiée après vérification du paiement.
+        </div>
+      </div>
+      {% else %}
+      <div class="step">
+        <div class="step-num">2</div>
+        <div class="step-text">
+          <strong>Expédition</strong>
+          Votre commande est préparée et expédiée rapidement.
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num">3</div>
+        <div class="step-text">
+          <strong>Paiement à la livraison</strong>
+          Préparez {{ order.total }} DA en espèces pour le livreur.
+        </div>
+      </div>
+      {% endif %}
+    </div>
+  </div>
+
+  <div class="footer">
+    © 2026 Boutique Maître · Livraison dans les 58 wilayas d'Algérie
+  </div>
+</div>
+</body>
+</html>

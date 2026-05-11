@@ -1,0 +1,180 @@
+{# catalogue/templates/catalogue/comment_ca_marche.html #}
+{% extends 'base.html' %}
+{% block title %}Comment ça marche — {{ config.nom_boutique|default:"Ma Boutique" }}{% endblock %}
+
+{% block content %}
+
+<!-- Header -->
+<section class="bg-gray-950 py-16 text-center">
+  <div class="max-w-screen-xl mx-auto px-6">
+    <p class="text-xs font-black uppercase tracking-[3px] mb-3" style="color:{{ config.couleur_principale|default:'#7c3aed' }};">Processus</p>
+    <h1 class="text-5xl font-black text-white mb-4">Comment ça marche ?</h1>
+    <p class="text-gray-400 text-lg max-w-xl mx-auto">
+      De la navigation jusqu'à la livraison — voici chaque étape de votre commande.
+    </p>
+  </div>
+</section>
+
+<!-- Timeline -->
+<section class="max-w-3xl mx-auto px-6 py-20">
+
+  {% with brand=config.couleur_principale|default:'#7c3aed' %}
+  <div class="relative">
+
+    <!-- Ligne verticale -->
+    <div class="absolute left-6 top-0 bottom-0 w-0.5 bg-gray-100 hidden md:block"></div>
+
+    <!-- Étape 1 -->
+    <div class="relative flex gap-8 mb-12">
+      <div class="flex-shrink-0 w-12 h-12 rounded-full text-white flex items-center justify-center text-xl font-black z-10 shadow-lg"
+           style="background-color:{{ brand }};">1</div>
+      <div class="flex-grow bg-white border border-gray-100 rounded-2xl p-6 shadow-sm">
+        <div class="flex items-center gap-3 mb-2">
+          <span class="text-2xl">🛍️</span>
+          <h3 class="text-lg font-black text-gray-900">Parcourez le catalogue</h3>
+        </div>
+        <p class="text-gray-500 text-sm leading-relaxed">
+          Naviguez sur notre boutique, filtrez par catégorie et découvrez nos produits.
+          Consultez les fiches produits pour voir les détails, prix et disponibilité.
+        </p>
+      </div>
+    </div>
+
+    <!-- Étape 2 -->
+    <div class="relative flex gap-8 mb-12">
+      <div class="flex-shrink-0 w-12 h-12 rounded-full text-white flex items-center justify-center text-xl font-black z-10 shadow-lg"
+           style="background-color:{{ brand }};">2</div>
+      <div class="flex-grow bg-white border border-gray-100 rounded-2xl p-6 shadow-sm">
+        <div class="flex items-center gap-3 mb-2">
+          <span class="text-2xl">🛒</span>
+          <h3 class="text-lg font-black text-gray-900">Ajoutez au panier</h3>
+        </div>
+        <p class="text-gray-500 text-sm leading-relaxed">
+          Choisissez la quantité souhaitée et cliquez sur "Ajouter au panier".
+          Continuez vos achats ou passez directement à la commande.
+        </p>
+      </div>
+    </div>
+
+    <!-- Étape 3 -->
+    <div class="relative flex gap-8 mb-12">
+      <div class="flex-shrink-0 w-12 h-12 rounded-full text-white flex items-center justify-center text-xl font-black z-10 shadow-lg"
+           style="background-color:{{ brand }};">3</div>
+      <div class="flex-grow bg-white border border-gray-100 rounded-2xl p-6 shadow-sm">
+        <div class="flex items-center gap-3 mb-2">
+          <span class="text-2xl">📝</span>
+          <h3 class="text-lg font-black text-gray-900">Passez votre commande</h3>
+        </div>
+        <p class="text-gray-500 text-sm leading-relaxed">
+          Renseignez votre nom, téléphone et adresse de livraison. Choisissez entre
+          <strong class="text-gray-700">retrait en boutique</strong> ou
+          <strong class="text-gray-700">livraison à domicile</strong> (58 wilayas).
+          Sélectionnez votre mode de paiement : COD ou virement.
+        </p>
+      </div>
+    </div>
+
+    <!-- Étape 4 -->
+    <div class="relative flex gap-8 mb-12">
+      <div class="flex-shrink-0 w-12 h-12 rounded-full text-white flex items-center justify-center text-xl font-black z-10 shadow-lg"
+           style="background-color:{{ brand }};">4</div>
+      <div class="flex-grow bg-white border border-gray-100 rounded-2xl p-6 shadow-sm">
+        <div class="flex items-center gap-3 mb-2">
+          <span class="text-2xl">📧</span>
+          <h3 class="text-lg font-black text-gray-900">Confirmation par email</h3>
+        </div>
+        <p class="text-gray-500 text-sm leading-relaxed">
+          Vous recevez immédiatement un email de confirmation avec le récapitulatif de votre commande.
+          Notre équipe examine votre commande et la confirme sous <strong class="text-gray-700">24h</strong>.
+        </p>
+        <div class="mt-3 inline-flex items-center gap-2 bg-gray-50 rounded-lg px-3 py-1.5 text-xs text-gray-500 font-semibold">
+          💡 Suivez votre commande à tout moment sans compte requis
+        </div>
+      </div>
+    </div>
+
+    <!-- Étape 5 (CCP) -->
+    <div class="relative flex gap-8 mb-12">
+      <div class="flex-shrink-0 w-12 h-12 rounded-full bg-orange-500 text-white flex items-center justify-center text-xl font-black z-10 shadow-lg">5</div>
+      <div class="flex-grow bg-white border border-orange-100 rounded-2xl p-6 shadow-sm">
+        <div class="flex items-center gap-3 mb-2">
+          <span class="text-2xl">💳</span>
+          <h3 class="text-lg font-black text-gray-900">Paiement <span class="text-orange-500">(si virement)</span></h3>
+        </div>
+        <p class="text-gray-500 text-sm leading-relaxed mb-4">
+          Si vous avez choisi le virement <strong>CCP</strong> ou <strong>BaridiMob</strong>,
+          effectuez le virement du montant exact après confirmation de votre commande.
+        </p>
+        <div class="bg-orange-50 rounded-xl p-4">
+          <p class="text-xs font-bold text-orange-700 uppercase tracking-wide mb-2">Coordonnées de virement</p>
+          <p class="text-sm text-orange-800">CCP : <strong>XXXXXXXXXX — Clé XX</strong></p>
+          <p class="text-sm text-orange-800">BaridiMob : <strong>XXXX XXXX XXXX XXXX</strong></p>
+        </div>
+        <div class="mt-3 bg-gray-50 rounded-xl p-3 text-xs text-gray-500">
+          ✅ Si vous avez choisi le <strong>paiement à la livraison (COD)</strong>, passez directement à l'étape 7.
+        </div>
+      </div>
+    </div>
+
+    <!-- Étape 6 -->
+    <div class="relative flex gap-8 mb-12">
+      <div class="flex-shrink-0 w-12 h-12 rounded-full bg-orange-500 text-white flex items-center justify-center text-xl font-black z-10 shadow-lg">6</div>
+      <div class="flex-grow bg-white border border-orange-100 rounded-2xl p-6 shadow-sm">
+        <div class="flex items-center gap-3 mb-2">
+          <span class="text-2xl">📤</span>
+          <h3 class="text-lg font-black text-gray-900">Envoyez la preuve de paiement <span class="text-orange-500">(si virement)</span></h3>
+        </div>
+        <p class="text-gray-500 text-sm leading-relaxed mb-4">
+          Uploadez la capture d'écran de votre virement directement depuis notre site.
+          Notre équipe vérifie la réception du paiement.
+        </p>
+        <a href="{% url 'commandes:upload_preuve' %}"
+           class="inline-flex items-center gap-2 text-sm font-bold text-white px-5 py-2.5 rounded-xl hover:opacity-85 transition-opacity"
+           style="background-color:{{ brand }};">
+          Envoyer ma preuve →
+        </a>
+      </div>
+    </div>
+
+    <!-- Étape 7 -->
+    <div class="relative flex gap-8">
+      <div class="flex-shrink-0 w-12 h-12 rounded-full bg-green-600 text-white flex items-center justify-center text-xl font-black z-10 shadow-lg">7</div>
+      <div class="flex-grow bg-white border border-green-100 rounded-2xl p-6 shadow-sm">
+        <div class="flex items-center gap-3 mb-2">
+          <span class="text-2xl">🚚</span>
+          <h3 class="text-lg font-black text-gray-900">Expédition & livraison</h3>
+        </div>
+        <p class="text-gray-500 text-sm leading-relaxed">
+          Votre commande est préparée et expédiée via Yalidine ou un autre transporteur.
+          Vous recevez le numéro de suivi. La livraison s'effectue sous
+          <strong class="text-gray-700">24h à 72h</strong> selon votre wilaya.
+        </p>
+        <div class="mt-3 flex flex-wrap gap-2">
+          <span class="bg-green-50 text-green-700 text-xs font-bold px-3 py-1 rounded-full">🏠 Livraison à domicile</span>
+          <span class="bg-green-50 text-green-700 text-xs font-bold px-3 py-1 rounded-full">🏪 Stop Desk</span>
+          <span class="bg-green-50 text-green-700 text-xs font-bold px-3 py-1 rounded-full">58 Wilayas</span>
+        </div>
+      </div>
+    </div>
+
+  </div>
+  {% endwith %}
+
+  <!-- CTA final -->
+  <div class="text-center mt-16">
+    <p class="text-gray-400 text-base mb-6">Prêt à commander ?</p>
+    <div class="flex flex-wrap justify-center gap-4">
+      <a href="{% url 'catalogue:boutique' %}"
+         class="inline-block font-bold text-white px-8 py-4 rounded-full hover:opacity-85 transition-opacity"
+         style="background-color:{{ config.couleur_principale|default:'#7c3aed' }};">
+        Voir le catalogue
+      </a>
+      <a href="{% url 'commandes:suivi' %}"
+         class="inline-block font-bold text-gray-900 px-8 py-4 rounded-full border-2 border-gray-900 hover:bg-gray-900 hover:text-white transition-all">
+        Suivre une commande
+      </a>
+    </div>
+  </div>
+
+</section>
+{% endblock %}

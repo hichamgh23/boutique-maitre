@@ -1,0 +1,117 @@
+{# commandes/templates/commandes/suivi.html #}
+{% extends 'base.html' %}
+{% block title %}Suivi de commande — {{ config.nom_boutique|default:"Ma Boutique" }}{% endblock %}
+
+{% block content %}
+<div class="max-w-3xl mx-auto px-6 py-16">
+
+  <div class="text-center mb-12">
+    <p class="text-xs font-black uppercase tracking-[3px] mb-2" style="color:{{ config.couleur_principale|default:'#7c3aed' }};">Sans compte requis</p>
+    <h1 class="text-4xl font-black text-gray-900 mb-3">Suivre ma commande</h1>
+    <p class="text-gray-400 text-base">Entrez votre numéro de commande ou votre numéro de téléphone.</p>
+  </div>
+
+  <!-- Formulaire de recherche -->
+  <form method="get" class="flex gap-3 mb-12">
+    <div class="flex-grow">{{ form.recherche }}</div>
+    <button type="submit"
+            class="font-bold text-white px-7 py-3 rounded-xl hover:opacity-85 transition-opacity flex-shrink-0"
+            style="background-color:{{ config.couleur_principale|default:'#7c3aed' }};">
+      Rechercher
+    </button>
+  </form>
+
+  <!-- Résultats -->
+  {% if recherche %}
+    {% if orders %}
+      <div class="space-y-5">
+        {% for order in orders %}
+        <div class="bg-white border border-gray-100 rounded-2xl p-6 shadow-sm">
+
+          <!-- En-tête commande -->
+          <div class="flex items-start justify-between flex-wrap gap-3 mb-5">
+            <div>
+              <p class="text-xs text-gray-400 font-semibold uppercase tracking-wider mb-1">Commande</p>
+              <h2 class="text-xl font-black text-gray-900">#{{ order.pk }}</h2>
+              <p class="text-xs text-gray-400 mt-1">{{ order.date_commande|date:"d/m/Y à H:i" }}</p>
+            </div>
+            <span class="text-xs font-bold px-3 py-1.5 rounded-full {{ order.statut_css }}">
+              {{ order.get_statut_display }}
+            </span>
+          </div>
+
+          <!-- Articles -->
+          <div class="bg-gray-50 rounded-xl p-4 mb-4">
+            {% for item in order.items.all %}
+            <div class="flex justify-between text-sm mb-1.5 last:mb-0">
+              <span class="text-gray-700">{{ item.produit.titre }} <span class="text-gray-400">×{{ item.quantite }}</span></span>
+              <span class="font-bold">{{ item.sous_total }} DA</span>
+            </div>
+            {% endfor %}
+            <div class="border-t border-gray-200 mt-3 pt-3 flex justify-between font-black">
+              <span>Total</span>
+              <span style="color:{{ config.couleur_principale|default:'#7c3aed' }};">{{ order.total }} DA</span>
+            </div>
+          </div>
+
+          <!-- Infos -->
+          <div class="grid grid-cols-2 gap-3 text-sm">
+            <div>
+              <span class="text-gray-400 text-xs">Livraison</span>
+              <p class="font-semibold">{{ order.get_type_livraison_display }}</p>
+            </div>
+            <div>
+              <span class="text-gray-400 text-xs">Paiement</span>
+              <p class="font-semibold">{{ order.get_mode_paiement_display }}</p>
+            </div>
+          </div>
+
+          <!-- CTA preuve paiement si CCP en attente -->
+          {% if order.mode_paiement == 'ccp' and order.statut == 'confirmee' and not order.preuve_paiement %}
+          <div class="mt-5 bg-orange-50 border border-orange-200 rounded-xl p-4 flex items-center justify-between gap-4">
+            <div>
+              <p class="font-bold text-orange-800 text-sm">Action requise</p>
+              <p class="text-orange-600 text-xs mt-0.5">Votre commande est confirmée. Envoyez votre preuve de virement CCP/BaridiMob.</p>
+            </div>
+            <a href="{% url 'commandes:upload_preuve' %}"
+               class="flex-shrink-0 text-xs font-bold text-white px-4 py-2.5 rounded-lg bg-orange-500 hover:bg-orange-600 transition-colors whitespace-nowrap">
+              Envoyer la preuve →
+            </a>
+          </div>
+          {% endif %}
+
+        </div>
+        {% endfor %}
+      </div>
+
+    {% else %}
+    <div class="text-center py-16 bg-gray-50 rounded-2xl">
+      <p class="text-4xl mb-4">🔍</p>
+      <p class="font-bold text-gray-700 mb-1">Aucune commande trouvée</p>
+      <p class="text-gray-400 text-sm">Vérifiez le numéro de commande ou le téléphone saisi.</p>
+    </div>
+    {% endif %}
+  {% endif %}
+
+  <!-- Liens utiles -->
+  <div class="mt-10 grid grid-cols-1 sm:grid-cols-2 gap-4">
+    <a href="{% url 'commandes:upload_preuve' %}"
+       class="flex items-center gap-4 bg-white border border-gray-100 rounded-2xl p-5 shadow-sm hover:shadow-md transition-shadow">
+      <div class="text-3xl">📤</div>
+      <div>
+        <p class="font-bold text-gray-900 text-sm">Envoyer une preuve de paiement</p>
+        <p class="text-gray-400 text-xs mt-0.5">Pour les paiements CCP / BaridiMob</p>
+      </div>
+    </a>
+    <a href="{% url 'catalogue:comment_ca_marche' %}"
+       class="flex items-center gap-4 bg-white border border-gray-100 rounded-2xl p-5 shadow-sm hover:shadow-md transition-shadow">
+      <div class="text-3xl">❓</div>
+      <div>
+        <p class="font-bold text-gray-900 text-sm">Comment ça marche ?</p>
+        <p class="text-gray-400 text-xs mt-0.5">Voir le processus de commande</p>
+      </div>
+    </a>
+  </div>
+
+</div>
+{% endblock %}
